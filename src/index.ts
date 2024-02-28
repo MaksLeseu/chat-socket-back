@@ -24,23 +24,26 @@ app.get('/', (req: any, res: any) => {
     res.send("Hello it's your server.");
 });
 
-const messages = [
-    {message: 'Hello Max', id: '23f2311', user: {id: 'asdsafa', name: 'Max'}},
-    {message: 'Hello Dimych', id: '23f231asdas1', user: {id: 'asds1231afa', name: 'Dimych'}},
-]
+const messages: any = [];
+const usersState = new Map()
 
 socket.on('connection', (socketChannel: any) => {
-    socketChannel.on('client-message-sent-max', (message: string) => {
-        const messageItem = {message, id: '23f2311' + new Date().getTime(),
-            user: {id: `asdsafa`, name: 'Max'}}
-        messages.push(messageItem)
+    usersState.set(socketChannel, {id: new Date().getTime().toString(), name: 'anonym'})
 
-        socket.emit('new-massage-sent', messageItem)
+    socket.on('disconnect', () => {
+        usersState.delete(socketChannel)
     })
 
-    socketChannel.on('client-message-sent-dimych', (message: string) => {
-        const messageItem = {message, id: '23f231asdas1' + new Date().getTime(),
-            user: {id: 'asds1231afa', name: 'Dimych'}}
+    socketChannel.on('client-name-sent', (name: string) => {
+        const user = usersState.get(socketChannel)
+        user.name = name
+    })
+
+    socketChannel.on('client-message-sent', (message: string) => {
+        const user = usersState.get(socketChannel)
+
+        const messageItem = {message, id: '23f2311' + new Date().getTime(),
+            user: {id: user.id, name: user.name}}
         messages.push(messageItem)
 
         socket.emit('new-massage-sent', messageItem)
