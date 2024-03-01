@@ -37,6 +37,7 @@ socket.on('connection', (socketChannel: any) => {
     socketChannel.on('client-name-sent', (name: string) => {
         const user = usersState.get(socketChannel)
         user.name = name
+        console.log(`${name} connected`)
     })
 
     socketChannel.on('client-message-sent', (message: string) => {
@@ -47,11 +48,12 @@ socket.on('connection', (socketChannel: any) => {
         messages.push(messageItem)
 
         socket.emit('new-massage-sent', messageItem)
+        console.log('a new message sent')
     })
 
     socketChannel.emit('init-messages-published', messages)
 
-    console.log('a user connected')
+    console.log('the connection completed')
 })
 
 const PORT = process.env.PORT || 3009
